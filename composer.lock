@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc325d6cc0e241421e2d48f5c603556e",
+    "content-hash": "a48935e5477203fd800f2d20f5f172d3",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -1416,6 +1416,52 @@
                 "source": "https://github.com/php-fig/log/tree/3.0.2"
             },
             "time": "2024-09-11T13:17:53+00:00"
+        },
+        {
+            "name": "swouters/sql-migrations-bundle",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Doelia/sql-migrations-bundle.git",
+                "reference": "f9386f6e48c4cf06335781ea82de6b6e0d41264a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Doelia/sql-migrations-bundle/zipball/f9386f6e48c4cf06335781ea82de6b6e0d41264a",
+                "reference": "f9386f6e48c4cf06335781ea82de6b6e0d41264a",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "^4.0",
+                "php": ">=8.3",
+                "symfony/console": "6.4.*",
+                "symfony/framework-bundle": "6.4.*"
+            },
+            "require-dev": {
+                "doctrine/doctrine-bundle": "^2.12",
+                "phpunit/phpunit": "^11.0",
+                "symfony/dotenv": "6.4.*",
+                "symfony/yaml": "6.4.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SWouters\\SqlMigrationsBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Stéphane Wouters",
+                    "email": "contact@stephanewouters.fr"
+                }
+            ],
+            "description": "Allow symfony database versioning using SQL plain files.",
+            "support": {
+                "issues": "https://github.com/Doelia/sql-migrations-bundle/issues",
+                "source": "https://github.com/Doelia/sql-migrations-bundle/tree/1.0.3"
+            },
+            "time": "2024-04-10T08:37:45+00:00"
         },
         {
             "name": "symfony/cache",
