@@ -67,7 +67,7 @@ class ImportCsvCommand extends Command
                 return Command::FAILURE;
             }
 
-            // parse CSV
+            // parse CSV and persist data
             $validRows = $this->parseCsvRows($filePath);
             if (!empty($validRows)) {
                 $this->dataPersist($validRows);
@@ -79,6 +79,7 @@ class ImportCsvCommand extends Command
             return Command::SUCCESS;
         } catch (Exception $e) {
             $outputInterface->writeln('<error>' . $e->getMessage() . '</error>');
+            $this->logger->error("Exception: " . $e->getMessage());
             return Command::FAILURE;
         }
     }
@@ -140,7 +141,7 @@ class ImportCsvCommand extends Command
 
             if (count($row) < 2) {
                 $this->errorsCount++;
-                $this->logger->info('Skipping invalid row #' . $this->rowNumber);
+                $this->logger->error('Skipping invalid row #' . $this->rowNumber);
                 continue;
             }
             
@@ -148,7 +149,7 @@ class ImportCsvCommand extends Command
             
             if (!$this->isValidInsee($insee) || !$this->isValidPhone($telephone)) {
                 $this->errorsCount++;
-                $this->logger->info('Invalid data at row #' . $this->rowNumber);
+                $this->logger->error('Invalid data at row #' . $this->rowNumber);
                 continue;
             }
             
