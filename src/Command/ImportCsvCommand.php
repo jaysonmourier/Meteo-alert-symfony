@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Command;
 
 use Exception;
-use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use App\Repository\DestinataireRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -27,15 +27,17 @@ class ImportCsvCommand extends Command
     private int $rowNumber;
     private int $successCount;
     private int $errorsCount;
+    private int $insertedRows;
 
     public function __construct(
-        private Connection $connection,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private DestinataireRepository $destinataireRepository
     ) {
         parent::__construct();
         $this->rowNumber = 0;
         $this->successCount = 0;
         $this->errorsCount = 0;
+        $this->insertedRows = 0;
     }
 
     protected function configure(): void {
@@ -47,7 +49,7 @@ class ImportCsvCommand extends Command
      *  - Elle récupère le chemin du fichier avec la méthode getArgument
      *  - Elle vérifie l'existence du fichier
      *  - Elle parse le fichier CSV via la méthode parseCsvRows
-     *  - Elle insert les données en base via la méthode dataPersist
+     *  - Elle insert les données en base via le repository DestinataireRepository
      *  - Elle affiche le rapport pour informer l'utilisateur du nombre de succès et d'erreurs
      * 
      * En cas de succès, la méthode retourne Command::SUCCESS. En cas d'erreur, Command::FAILURE est retourné.
@@ -70,7 +72,7 @@ class ImportCsvCommand extends Command
             // parse CSV and persist data
             $validRows = $this->parseCsvRows($filePath);
             if (!empty($validRows)) {
-                $this->dataPersist($validRows);
+                $this->insertedRows = $this->destinataireRepository->insertBulk($validRows);
             }
 
             // print report
@@ -164,56 +166,6 @@ class ImportCsvCommand extends Command
     }
 
     /**
-     * La méthode dataPersist permet de persister efficacement les données en base de données.
-     * Elle repose sur un système de chunks. Par défaut, la taille d'un chunk est de 10 éléments.
-     * L'objectif est de minimiser le nombre de requêtes faites vers la base de données.
-     * 
-     * La méthode peut lever une exception si 'executeStatement' échoue
-     * 
-     * La méthode fonctionne comme tel:
-     * - Elle découpe le tableau en plusieurs chunks de taille $chunkSize
-     * - Pour chacun des éléments des chunks :
-     *      . on génère son placeholder (?, ?) pour l'injecter dans la requête SQL
-     *      . on ajoute son code INSEE au tableau 'values'
-     *      . on ajoute son numéro de téléphone au tableau 'values'
-     *      . on injecte le placeholder est le tableau 'values' dans une requête SQL
-     *      . on exécute la requête via la méthode executeStatement
-     *  
-     * 
-     * @param array $data
-     * @param int $chunkSize
-     * @throws Exception
-     * @return void
-     */
-    private function dataPersist(array $data, int $chunkSize = 10): void {
-        if (empty($data)) {
-            return;
-        }
-
-        $chunks = array_chunk($data, $chunkSize);
-
-        foreach ($chunks as $chunk) {
-            $placeholders = [];
-            $values = [];
-
-            foreach ($chunk as $row) {
-                $placeholders[] = "(?, ?)";
-                $values[] = $row[self::INSEE_INDEX];
-                $values[] = $row[self::TELEPHONE_INDEX];
-            }
-
-            $sql = "INSERT INTO destinataires (insee, telephone) VALUES " 
-            . implode(", ", $placeholders);
-            
-            try {
-                $this->connection->executeStatement($sql, $values);
-            } catch (Exception $e) {
-                throw $e;
-            }
-        }
-    }
-
-    /**
      * La méthode printReport permet de générer un rapport pour informer l'utilisateur
      * sur la finalité de l'exécution de la commande app:csv-import.
      * 
@@ -231,6 +183,7 @@ class ImportCsvCommand extends Command
 
         $outputInterface->writeln("<info>Total rows:</info>  " . $this->rowNumber);
         $outputInterface->writeln("<info>✔ Success Count:</info>  " . $this->successCount);
+        $outputInterface->writeln("<info>✔ Inserted Rows:</info>  " . $this->insertedRows);
         $outputInterface->writeln("<error>✖ Error Count:</error>  " . $this->errorsCount);
 
         if ($this->errorsCount > 0) {

@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Command;
 
 use App\Command\ImportCsvCommand;
+use App\Repository\DestinataireRepository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -14,14 +17,16 @@ class ImportCsvCommandTest extends TestCase
 {
     private $connectionMock;
     private $loggerMock;
+    private $destinataireRepository;
 
     protected function setUp(): void {
         $this->connectionMock = $this->createMock(Connection::class);
         $this->loggerMock = $this->createMock(LoggerInterface::class);
+        $this->destinataireRepository = new DestinataireRepository($this->connectionMock);
     }
 
     public function testFileNotFound(): void {
-        $command = new ImportCsvCommand($this->connectionMock, $this->loggerMock);
+        $command = new ImportCsvCommand($this->loggerMock, $this->destinataireRepository);
         $application = new Application();
         $application->add($command);
 
@@ -60,7 +65,7 @@ class ImportCsvCommandTest extends TestCase
             ->expects($this->exactly(4))
             ->method("error");
 
-        $command = new ImportCsvCommand($this->connectionMock, $this->loggerMock);
+        $command = new ImportCsvCommand($this->loggerMock, $this->destinataireRepository);
         $application = new Application();
         $application->add($command);
 
@@ -96,7 +101,7 @@ class ImportCsvCommandTest extends TestCase
             ->expects($this->never())
             ->method('error');
 
-        $command = new ImportCsvCommand($this->connectionMock, $this->loggerMock);
+        $command = new ImportCsvCommand($this->loggerMock, $this->destinataireRepository);
         $application = new Application();
         $application->add($command);
 
