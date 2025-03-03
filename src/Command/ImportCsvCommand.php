@@ -203,8 +203,7 @@ class ImportCsvCommand extends Command
             }
 
             $sql = "INSERT INTO destinataires (insee, telephone) VALUES " 
-            . implode(", ", $placeholders) . 
-            " ON CONFLICT (telephone) DO NOTHING";
+            . implode(", ", $placeholders);
             
             try {
                 $this->connection->executeStatement($sql, $values);
