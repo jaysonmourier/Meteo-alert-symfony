@@ -16,6 +16,24 @@ class DestinataireRepository
 
     public function __construct(private Connection $connection) {}
 
+    public function getNumbersByInsee(int $insee): array {
+        $sql = "SELECT DISTINCT telephone FROM " . self::TABLE_NAME . " WHERE insee = :insee";
+
+        try {
+            $res = $this->connection
+                ->executeQuery($sql, ['insee' => $insee])
+                ->fetchAllAssociative();
+        } catch (Exception $e) {
+            throw new RuntimeException(
+                "Erreur lors de l'exécution de la requête SQL (getNumbersFromInsee)",
+                0,
+                $e
+            );
+        }
+
+        return $res;
+    }
+
     /**
      * La méthode insertBulk permet de persister efficacement les données en base de données.
      * Elle repose sur un système de chunks. Par défaut, la taille d'un chunk est de 10 éléments.
