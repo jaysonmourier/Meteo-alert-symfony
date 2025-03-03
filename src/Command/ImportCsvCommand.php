@@ -165,7 +165,7 @@ class ImportCsvCommand extends Command
 
     /**
      * La méthode dataPersist permet de persister efficacement les données en base de données.
-     * Elle repose sur un système de chunks. Par défaut, la taille d'un chunk est de 100 éléments.
+     * Elle repose sur un système de chunks. Par défaut, la taille d'un chunk est de 10 éléments.
      * L'objectif est de minimiser le nombre de requêtes faites vers la base de données.
      * 
      * La méthode peut lever une exception si 'executeStatement' échoue
@@ -185,7 +185,7 @@ class ImportCsvCommand extends Command
      * @throws Exception
      * @return void
      */
-    private function dataPersist(array $data, int $chunkSize = 100): void {
+    private function dataPersist(array $data, int $chunkSize = 10): void {
         if (empty($data)) {
             return;
         }
