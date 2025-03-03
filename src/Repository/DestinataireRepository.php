@@ -31,7 +31,7 @@ class DestinataireRepository
             );
         }
 
-        return $res;
+        return array_column($res, 'telephone');;
     }
 
     /**
@@ -78,7 +78,7 @@ class DestinataireRepository
             }
 
             $sql = "INSERT INTO " . self::TABLE_NAME . " (insee, telephone) VALUES " 
-            . implode(", ", $placeholders);
+            . implode(", ", $placeholders) . " ON CONFLICT (insee, telephone) DO NOTHING;";
             
             try {
                 $insertedRows += $this->connection->executeStatement($sql, $values);
