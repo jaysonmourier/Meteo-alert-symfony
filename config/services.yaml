@@ -27,3 +27,9 @@ services:
     App\EventListener\RequestValidationListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 10 }
+
+    App\EventListener\AuthentificationListener:
+        arguments:
+            $apiKey: '%env(X_API_KEY)%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 1 }

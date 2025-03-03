@@ -19,22 +19,25 @@ class RequestValidationListener
                 $data = $request->toArray();
             } catch (Exception $e) {
                 $event->setResponse(new JsonResponse([
-                    'error' => 'Requête JSON invalide',
-                    'details' => $e->getMessage()
+                    'error'   => 'Invalid JSON payload',
+                    'message' => 'The request body contains invalid JSON.',
+                    'details' => $e->getMessage(),
                 ], JsonResponse::HTTP_BAD_REQUEST));
                 return;
             }
 
             if (!isset($data['insee']) || empty($data['insee'])) {
                 $event->setResponse(new JsonResponse([
-                    'error' => "Le champ 'insee' est requis"
+                    'error' => 'Missing "insee" field',
+                    'message' => 'The "insee" field is required in the request body.',
                 ], JsonResponse::HTTP_BAD_REQUEST));
                 return;
             }
     
             if (!preg_match('/^\d{5}$/', $data['insee'])) {
                 $event->setResponse(new JsonResponse([
-                    'error' => "Le champ 'insee' doit être un code à 5 chiffres"
+                    'error'   => 'Invalid "insee" format',
+                    'message' => 'The "insee" field must be a 5-digit code.',
                 ], JsonResponse::HTTP_BAD_REQUEST));
                 return;
             }
