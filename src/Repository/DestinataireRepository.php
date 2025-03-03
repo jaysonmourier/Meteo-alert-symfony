@@ -31,7 +31,7 @@ class DestinataireRepository
             );
         }
 
-        return array_column($res, 'telephone');;
+        return array_column($res, 'telephone');
     }
 
     /**

@@ -4,32 +4,30 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Message\SmsNotification;
 use RuntimeException;
-use App\Repository\DestinataireRepository;
-use App\Service\SmsService;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\AlertService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AlertController extends AbstractController
 {
     #[Route('/alerter', methods:['POST'])]
-    public function alerter(Request $request, DestinataireRepository $destinataireRepository, MessageBusInterface $messageBusInterface, LoggerInterface $logger): JsonResponse {
+    public function alerter(
+        Request $request, 
+        LoggerInterface $logger,
+        AlertService $alertService
+    ): JsonResponse {
         try {
-            $insee = intval($request->toArray()['insee']);
+            $insee = $alertService->getInseeFromRequest($request);
+
+            $message = $alertService->getMessageFromRequest($request);
+
+            $numbers = $alertService->getNumbersFromInsee($insee);
             
-            $numbers = $destinataireRepository->getNumbersByInsee($insee);
-            
-            if (!empty($numbers)) {
-                foreach ($numbers as $number) {
-                    $logger->info($number);
-                    $messageBusInterface->dispatch(new SmsNotification($number, "(INSEE: " . $insee . ") Alerte météo!"));
-                }
-            }
+            $alertService->dispatch($numbers, $message);
     
             return $this->json([
                 "status" => "done",
