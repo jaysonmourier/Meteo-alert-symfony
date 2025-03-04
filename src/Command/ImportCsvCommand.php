@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Command;
 
 use Exception;
+use App\Dto\CsvParseResult;
 use Psr\Log\LoggerInterface;
-use App\Repository\DestinataireRepository;
+use App\Service\CsvParserService;
 use App\Service\DataValidatorService;
+use App\Repository\DestinataireRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,8 +24,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ImportCsvCommand extends Command 
 {
     public const ARG_FILE_PATH = "file";
-    public const INSEE_INDEX = "insee";
-    public const TELEPHONE_INDEX = "telephone";
 
     private int $rowNumber;
     private int $successCount;
@@ -33,13 +33,10 @@ class ImportCsvCommand extends Command
     public function __construct(
         private LoggerInterface $logger,
         private DestinataireRepository $destinataireRepository,
-        private DataValidatorService $dataValidatorService
+        private DataValidatorService $dataValidatorService,
+        private CsvParserService $csvParserService
     ) {
         parent::__construct();
-        $this->rowNumber = 0;
-        $this->successCount = 0;
-        $this->errorsCount = 0;
-        $this->insertedRows = 0;
     }
 
     protected function configure(): void {
@@ -65,16 +62,9 @@ class ImportCsvCommand extends Command
             // get file path
             $filePath = $inputInterface->getArgument(self::ARG_FILE_PATH);
 
-            // check if file exists
-            if (!file_exists($filePath)) {
-                $outputInterface->writeln('<error>File not found: ' . $filePath . '</error>');
-                return Command::FAILURE;
-            }
-
-            // parse CSV and persist data
-            $validRows = $this->parseCsvRows($filePath);
-            if (!empty($validRows)) {
-                $this->insertedRows = $this->destinataireRepository->insertBulk($validRows);
+            $csvParseResult = $this->csvParserService->parse($filePath);
+            if (!empty($csvParseResult->data)) {
+                $this->insertedRows = $this->destinataireRepository->insertBulk($$csvParseResult->data);
             }
 
             // print report
@@ -86,65 +76,6 @@ class ImportCsvCommand extends Command
             $this->logger->error("Exception: " . $e->getMessage());
             return Command::FAILURE;
         }
-    }
-
-    /**
-     * Cette méthode permet d'ouvrir le fichier CSV situé au chemin $filePath donné en paramètre,
-     * d'ouvrir et parcourir ligne par ligne le fichier CSV afin d'en extraire les lignes valides.
-     * 
-     * Une ligne est considérée comme valide si le couple (INSEE, TELEPHONE) extrait, satisfait bien les 
-     * méthodes isValidInsee et isValidPhone.
-     * 
-     * Si aucun couple (INSEE, TELEPHONE) n'est valide, alors la fonction retourne un tableau vide
-     * 
-     * Cette méthode fonctionne comme tel: 
-     * - Elle ouvre le fichier relatif au chemin $filePath. En cas d'erreur, une exception est levée.
-     * - Elle boucle avec comme condition de sortie, le retour de la fonction fgetcsv.
-     * - Pour chaque ligne, parseCsvRows vérifie que le code INSEE et le numéro de téléphone extrait soit bien valide.
-     * - Si le couple (INSEE, TELEPHONE) est valide, elle l'ajoute au tableau des couples valides.
-     * - Une fois terminé, la fonction retourne le tableau avec tous les couples valides du fichier CSV.
-     * 
-     * @param string $filePath
-     * @throws \RuntimeException
-     * @return array
-     */
-    private function parseCsvRows(string $filePath): array {
-        $handle = fopen($filePath, 'r');
-
-        if ($handle === false) {
-            throw new \RuntimeException("Cannot open file");
-        }
-
-        $batchData = [];
-        while (($row = fgetcsv($handle, 0, ',', '"', "\\")) !== false) {
-            $this->rowNumber++;
-
-            if (count($row) < 2) {
-                $this->errorsCount++;
-                $this->logger->error('Skipping invalid row #' . $this->rowNumber);
-                continue;
-            }
-            
-            [$insee, $telephone] = $row;
-            
-            if (
-                !$this->dataValidatorService->isValidInseeCode($insee) 
-                || !$this->dataValidatorService->isValidPhoneNumber($telephone)
-            ) {
-                $this->errorsCount++;
-                $this->logger->error('Invalid data at row #' . $this->rowNumber);
-                continue;
-            }
-            
-            
-            $batchData[] = [self::INSEE_INDEX => $insee, self::TELEPHONE_INDEX => $telephone];
-            $this->successCount++;
-            $this->logger->info("Row #" . $this->rowNumber . ": INSEE=" . $insee . ", PHONE:" . $telephone);
-        }
-
-        fclose($handle);
-
-        return $batchData;
     }
 
     /**
