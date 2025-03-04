@@ -19,13 +19,13 @@ class CsvParserService
     public function parse(string $filePath): CsvParseResult
     {
         if (!file_exists($filePath) || !is_readable($filePath)) {
-            throw new \RuntimeException("Impossible d'ouvrir le fichier : $filePath");
+            throw new RuntimeException("Impossible d'ouvrir le fichier : $filePath");
         }
 
         $handle = fopen($filePath, 'r');
 
         if ($handle === false) {
-            throw new \RuntimeException("Erreur lors de l'ouverture du fichier : $filePath");
+            throw new RuntimeException("Erreur lors de l'ouverture du fichier : $filePath");
         }
 
         $totalRows = 0;

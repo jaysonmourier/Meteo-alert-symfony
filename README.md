@@ -8,24 +8,23 @@ Projet réalisé dans le cadre d'un test technique pour le poste de développeur
 - Persistance: [Doelia/sql-migrations-bundle](https://github.com/Doelia/sql-migrations-bundle)
 - Base de données: Postegresql
 
-## Installer et lancer le projet localement
-Pour commencer, il suffit de cloner le projet depuis ce dépôt:
+## Installer, configurer et lancer le projet localement
+Pour commencer, il suffit de cloner le projet depuis ce dépôt et installer les dépendances:
 ```{shell}
 git clone <URL_DU_REPO>
 cd nom-du-projet
-```
-Installer les dépendances:
-```{shell}
 composer install
 ```
+
 Configurer les variables d'environnements (connexion à la base de données):
 ```{shell}
 cp .env .env.local
 ```
 ```{shell}
-DATABASE_URL=mysql://user:password@127.0.0.1:3306/nom_de_la_db
+DATABASE_URL="postgresql://<USER>:<PASSWORD@127.0.0.1:5432/test_symfony?serverVersion=16&charset=utf8"
+MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
+X_API_KEY="choisir_une_clé_API_arbitraire"
 ```
-
 Créer la base de données: 
 ```{shell}
 php bin/console doctrine:database:create
@@ -37,10 +36,15 @@ php bin/console sql:migrations:status
 php bin/console sql:migrations:migrate
 ```
 
+Configurer Symfony Messenger:
+```{shell}
+php bin/console messenger:setup-transports
+```
+
 Et pour finir, lancer le serveur Symfony
 
 ```{shell}
-symfony serve
+symfony serve -d
 ```
 Pour lancer les tests unitaires, faites:
 ```{shell}
