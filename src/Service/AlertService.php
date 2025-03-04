@@ -14,10 +14,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class AlertService
 {
-    private const INSEE_REGEX = '/^\d{5}$/';
     public function __construct(
         private MessageBusInterface $messageBusInterface,
-        private DestinataireRepository $destinataireRepository, 
+        private DestinataireRepository $destinataireRepository,
+        private DataValidatorService $dataValidatorService,
         private LoggerInterface $logger
     ) {}
 
@@ -41,7 +41,7 @@ class AlertService
 
         $insee = $data['insee'];
 
-        if (empty($insee) || !preg_match(self::INSEE_REGEX, $insee)) {
+        if (empty($insee) || !$this->dataValidatorService->isValidInseeCode($insee)) {
             $this->logger->error("Invalid INSEE code.", ['insee' => $insee]);
             throw new InvalidInseeException("Invalid INSEE code.");
         }

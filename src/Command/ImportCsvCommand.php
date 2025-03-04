@@ -7,6 +7,7 @@ namespace App\Command;
 use Exception;
 use Psr\Log\LoggerInterface;
 use App\Repository\DestinataireRepository;
+use App\Service\DataValidatorService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,7 +32,8 @@ class ImportCsvCommand extends Command
 
     public function __construct(
         private LoggerInterface $logger,
-        private DestinataireRepository $destinataireRepository
+        private DestinataireRepository $destinataireRepository,
+        private DataValidatorService $dataValidatorService
     ) {
         parent::__construct();
         $this->rowNumber = 0;
@@ -87,30 +89,6 @@ class ImportCsvCommand extends Command
     }
 
     /**
-     * isValidInsee permet de vérifier que le code INSEE passé en paramètre est bien un code INSEE valide.
-     * Si le code INSEE est valide, la méthode retourne 'true'. Sinon, elle retourne 'false'.
-     * 
-     * @param string $insee
-     * @return bool
-     */
-    private function isValidInsee(string $insee): bool
-    {
-        return $insee !== null && (bool)preg_match('/^\d{5}$/', $insee);
-    }
-
-    /**
-     * isValidPhone permet de vérifier que le numéro de téléphone passé en paramètre est bien un numéro valide.
-     * Si le numéro est valide, la méthode retourne 'true'. Sinon, elle retourne 'false'.
-     * 
-     * @param string $phone
-     * @return bool
-     */
-    private function isValidPhone(string $phone): bool
-    {
-        return $phone !== null && (bool)preg_match('/^\+?\d{10,15}$/', $phone);
-    }
-
-    /**
      * Cette méthode permet d'ouvrir le fichier CSV situé au chemin $filePath donné en paramètre,
      * d'ouvrir et parcourir ligne par ligne le fichier CSV afin d'en extraire les lignes valides.
      * 
@@ -149,11 +127,15 @@ class ImportCsvCommand extends Command
             
             [$insee, $telephone] = $row;
             
-            if (!$this->isValidInsee($insee) || !$this->isValidPhone($telephone)) {
+            if (
+                !$this->dataValidatorService->isValidInseeCode($insee) 
+                || !$this->dataValidatorService->isValidPhoneNumber($telephone)
+            ) {
                 $this->errorsCount++;
                 $this->logger->error('Invalid data at row #' . $this->rowNumber);
                 continue;
             }
+            
             
             $batchData[] = [self::INSEE_INDEX => $insee, self::TELEPHONE_INDEX => $telephone];
             $this->successCount++;
