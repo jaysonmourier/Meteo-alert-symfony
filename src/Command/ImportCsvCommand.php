@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     description: 'Import a CSV file, parse its content, and store valid (INSEE, PHONE) records in the database.',
     hidden: false
 )]
-class ImportCsvCommand extends Command 
+class ImportCsvCommand extends Command
 {
     public const ARG_FILE_PATH = "file";
 
@@ -35,7 +35,8 @@ class ImportCsvCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void {
+    protected function configure(): void
+    {
         $this->addArgument(self::ARG_FILE_PATH, InputArgument::REQUIRED, 'Path to the CSV file');
     }
 
@@ -46,14 +47,15 @@ class ImportCsvCommand extends Command
      *  - Elle parse le fichier CSV via la méthode parseCsvRows
      *  - Elle insert les données en base via le repository DestinataireRepository
      *  - Elle affiche le rapport pour informer l'utilisateur du nombre de succès et d'erreurs
-     * 
+     *
      * En cas de succès, la méthode retourne Command::SUCCESS. En cas d'erreur, Command::FAILURE est retourné.
-     * 
+     *
      * @param \Symfony\Component\Console\Input\InputInterface $inputInterface
      * @param \Symfony\Component\Console\Output\OutputInterface $outputInterface
      * @return int
      */
-    protected function execute(InputInterface $inputInterface, OutputInterface $outputInterface): int {
+    protected function execute(InputInterface $inputInterface, OutputInterface $outputInterface): int
+    {
         try {
             // get file path
             $filePath = $inputInterface->getArgument(self::ARG_FILE_PATH);
@@ -69,8 +71,8 @@ class ImportCsvCommand extends Command
                 $outputInterface,
                 $csvParseResult->totalRows,
                 $csvParseResult->totalValidRows,
-                $insertedRows, 
-                $csvParseResult->totalErrorRows, 
+                $insertedRows,
+                $csvParseResult->totalErrorRows,
             );
 
             return Command::SUCCESS;

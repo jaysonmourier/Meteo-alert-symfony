@@ -11,5 +11,6 @@ class CsvParseResult
         public int $totalValidRows,
         public int $totalErrorRows,
         public array $data
-    ) {}
+    ) {
+    }
 }

@@ -7,4 +7,5 @@ namespace App\Exceptions;
 use Exception;
 
 class InvalidInseeException extends Exception
-{}
+{
+}

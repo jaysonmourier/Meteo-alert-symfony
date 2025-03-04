@@ -19,13 +19,14 @@ class AlertService
         private DestinataireRepository $destinataireRepository,
         private DataValidatorService $dataValidatorService,
         private LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     /**
      * Permet de récuperer le code INSEE dans le tableau passé en paramètre.
-     * 
+     *
      * Si le code INSEE n'est pas présent ou invalide, une exception est levée.
-     * 
+     *
      * @param array $data
      * @throws \App\Exceptions\MissingInseeException
      * @throws \App\Exceptions\InvalidInseeException
@@ -51,9 +52,9 @@ class AlertService
 
     /**
      * Permet de récuperer le champ 'message' du tableau passé en paramètre.
-     * 
+     *
      * Si la clé 'message' ne se trouve pas dans le tableau, une exception est levée.
-     * 
+     *
      * @param array $data
      * @throws \App\Exceptions\MissingMessageException
      * @return string
@@ -70,7 +71,7 @@ class AlertService
 
     /**
      * Permet de récuperer les numéros de téléphones associés au code INSEE passé en paramètre.
-     * 
+     *
      * @param int $insee
      * @return array
      */
@@ -81,8 +82,8 @@ class AlertService
     }
 
     /**
-     * Permet de dispatcher des notifications SMS via 'Symfony\Component\Messenger\MessageBusInterface'. 
-     * 
+     * Permet de dispatcher des notifications SMS via 'Symfony\Component\Messenger\MessageBusInterface'.
+     *
      * @param array $numbers
      * @param string $message
      * @return void

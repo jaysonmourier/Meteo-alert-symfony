@@ -14,37 +14,28 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AlertController extends AbstractController
 {
-    #[Route('/alerter', methods:['POST'])]
-    /**
-     * Point d'entrée qui permet de propager un message en fonction du code INSEE.
-     * Le contrôleur extrait les données de la requête, récupère les numéros associés
-     * et dispatch les messages via la méthode 'dispatch' de 'App\Service\AlertService'.
-     * 
-     * Si une exception est levée, elle est gérée par 'App\EventListener\ExceptionListener'.
-     * 
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \App\Service\AlertService $alertService
-     * @param \Psr\Log\LoggerInterface $logger
-     * @return JsonResponse
-     */
+    #[Route('/alerter', methods: ['POST'])]
     public function alerter(
-        Request $request, 
+        Request $request,
         AlertService $alertService,
         LoggerInterface $logger
-        ): JsonResponse 
-    {
+    ): JsonResponse {
         $data = $request->toArray();
 
-        $logger->info("received request", ["data" => $data]);
+        $logger->info('Received request', ['data' => $data]);
 
         $insee = $alertService->getInsee($data);
         $message = $alertService->getMessage($data);
         $numbers = $alertService->getNumbersFromInsee($insee);
+
         $alertService->dispatchSmsNotification($numbers, $message);
-    
-        return $this->json([
-            "status" => "done",
-            "sendTo" => count($numbers)
-        ], Response::HTTP_OK);
+
+        return $this->json(
+            [
+                'status' => 'done',
+                'sendTo' => count($numbers),
+            ],
+            Response::HTTP_OK
+        );
     }
 }

@@ -13,7 +13,8 @@ class CsvParserService
     public function __construct(
         private LoggerInterface $logger,
         private DataValidatorService $dataValidatorService
-    ) {}
+    ) {
+    }
 
     public function parse(string $filePath): CsvParseResult
     {
@@ -43,7 +44,8 @@ class CsvParserService
 
             [$insee, $telephone] = $row;
 
-            if (!$this->dataValidatorService->isValidInseeCode($insee) 
+            if (
+                !$this->dataValidatorService->isValidInseeCode($insee)
                 || !$this->dataValidatorService->isValidPhoneNumber($telephone)
             ) {
                 $errorRows++;

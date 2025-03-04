@@ -31,7 +31,8 @@ class ExceptionListener
 {
     public function __construct(
         private LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     public function onKernelException(ExceptionEvent $event): void
     {
@@ -42,14 +43,16 @@ class ExceptionListener
         $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
         $message = 'An error occured';
 
-        if ($exception instanceof MissingInseeException ||
-            $exception instanceof MissingMessageException) {
+        if (
+            $exception instanceof MissingInseeException ||
+            $exception instanceof MissingMessageException
+        ) {
                 $statusCode = Response::HTTP_BAD_REQUEST;
                 $message = $exception->getMessage();
-            } elseif ($exception instanceof InvalidInseeException) {
-                $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
-                $message = $exception->getMessage();
-            }
+        } elseif ($exception instanceof InvalidInseeException) {
+            $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
+            $message = $exception->getMessage();
+        }
 
         $response = new JsonResponse(['error' => $message], $statusCode);
         $event->setResponse($response);

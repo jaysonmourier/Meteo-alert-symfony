@@ -6,13 +6,13 @@ namespace App\Service;
 
 class DataValidatorService
 {
-    private const INSEE_REGEX_PATTERN = '/^\d{5}$/'; 
-    private const PHONENUMBER_REGEX_PATTERN = '/^\+?\d{10,15}$/'; 
+    private const INSEE_REGEX_PATTERN = '/^\d{5}$/';
+    private const PHONENUMBER_REGEX_PATTERN = '/^\+?\d{10,15}$/';
 
     /**
      * isValidInseeCode permet de vérifier que le code INSEE passé en paramètre est bien un code INSEE valide.
      * Si le code INSEE est valide, la méthode retourne 'true'. Sinon, elle retourne 'false'.
-     * 
+     *
      * @param string $insee
      * @return bool
      */
@@ -24,7 +24,7 @@ class DataValidatorService
     /**
      * isValidPhoneNumber permet de vérifier que le numéro de téléphone passé en paramètre est bien un numéro valide.
      * Si le numéro est valide, la méthode retourne 'true'. Sinon, elle retourne 'false'.
-     * 
+     *
      * @param string $phone
      * @return bool
      */

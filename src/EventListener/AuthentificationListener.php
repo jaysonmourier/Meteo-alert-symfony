@@ -22,8 +22,9 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 class AuthentificationListener
 {
     private string $apiKey;
-    
-    public function __construct(string $apiKey) {
+
+    public function __construct(string $apiKey)
+    {
         $this->apiKey = $apiKey;
     }
 
@@ -33,7 +34,7 @@ class AuthentificationListener
 
         if ($request->getMethod() === 'POST' && $request->getContentTypeFormat() === 'json') {
             $apiKeyHeader = $request->headers->get('X-API-KEY');
-            
+
             if (empty($apiKeyHeader)) {
                 $event->setResponse(new JsonResponse([
                     "error" => "Missing API key",

@@ -1,11 +1,11 @@
-<?php 
+<?php
 
 declare(strict_types=1);
 
 namespace App\Repository;
 
 use Exception;
-use \RuntimeException;
+use RuntimeException;
 use Doctrine\DBAL\Connection;
 
 class DestinataireRepository
@@ -14,18 +14,21 @@ class DestinataireRepository
     private const INSEE_KEY = 'insee';
     private const TELEPHONE_KEY = 'telephone';
 
-    public function __construct(private Connection $connection) {}
+    public function __construct(private Connection $connection)
+    {
+    }
 
     /**
      * Cette méthode retourne les numéros de téléphone associé au code INSEE donné en paramètre.
-     * 
+     *
      * En cas d'erreur, elle retourne une exception.
-     * 
+     *
      * @param int $insee
      * @throws \RuntimeException
      * @return array
      */
-    public function getNumbersByInsee(int $insee): array {
+    public function getNumbersByInsee(int $insee): array
+    {
         $sql = "SELECT DISTINCT telephone FROM " . self::TABLE_NAME . " WHERE insee = :insee";
 
         try {
@@ -47,11 +50,11 @@ class DestinataireRepository
      * La méthode insertBulk permet de persister efficacement les données en base de données.
      * Elle repose sur un système de chunks. Par défaut, la taille d'un chunk est de 10 éléments.
      * L'objectif est de minimiser le nombre de requêtes faites vers la base de données.
-     * 
+     *
      * insertBulk retourne le nombre de lignes insérées en base de données.
-     * 
+     *
      * La méthode peut lever une exception si 'executeStatement' échoue
-     * 
+     *
      * La méthode fonctionne comme tel:
      * - Elle découpe le tableau en plusieurs chunks de taille $chunkSize
      * - Pour chacun des éléments des chunks :
@@ -60,14 +63,15 @@ class DestinataireRepository
      *      . on ajoute son numéro de téléphone au tableau 'values'
      *      . on injecte le placeholder est le tableau 'values' dans une requête SQL
      *      . on exécute la requête via la méthode executeStatement
-     *  
-     * 
+     *
+     *
      * @param array $data
      * @param int $chunkSize
      * @throws \RuntimeException
      * @return int
      */
-    public function insertBulk(array $data, int $chunkSize = 10): int {
+    public function insertBulk(array $data, int $chunkSize = 10): int
+    {
         if (empty($data)) {
             return 0;
         }
@@ -86,9 +90,9 @@ class DestinataireRepository
                 $values[] = $row[self::TELEPHONE_KEY];
             }
 
-            $sql = "INSERT INTO " . self::TABLE_NAME . " (insee, telephone) VALUES " 
+            $sql = "INSERT INTO " . self::TABLE_NAME . " (insee, telephone) VALUES "
             . implode(", ", $placeholders) . " ON CONFLICT (insee, telephone) DO NOTHING;";
-            
+
             try {
                 $insertedRows += $this->connection->executeStatement($sql, $values);
             } catch (Exception $e) {

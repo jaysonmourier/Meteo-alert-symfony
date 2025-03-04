@@ -8,14 +8,16 @@ use Psr\Log\LoggerInterface;
 
 class SmsService
 {
-    public function __construct(private LoggerInterface $logger) {}
+    public function __construct(private LoggerInterface $logger)
+    {
+    }
 
     /**
      * Simule l'envoi d'un SMS.
-     * 
+     *
      * Actuellement, cette méthode ne fait que de logger le SMS sans réellement l'envoyer.
      * Dans un scénario réel, on pourrait utiliser un service tel que Twilio.
-     * 
+     *
      * @param string $to
      * @param string $message
      * @return void
