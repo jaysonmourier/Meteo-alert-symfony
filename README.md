@@ -12,8 +12,8 @@ Projet réalisé dans le cadre d'un test technique pour le poste de développeur
 
 ### 📌 Cloner et installer les dépendances
 ```{shell}
-git clone <URL_DU_REPO>
-cd nom-du-projet
+git clone https://github.com/jaysonmourier/Meteo-alert-symfony.git
+cd Meteo-alert-symfony
 composer install
 ```
 
