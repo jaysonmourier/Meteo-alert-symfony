@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\EventListener;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -22,7 +23,7 @@ class ConsoleExceptionListener
         $io = new SymfonyStyle($event->getInput(), new ConsoleOutput());
 
         $this->logger->error(
-            sprintf("Error command '%s': %s", $command ? $command->getName() : 'unknown', $exception->getMessage())
+            sprintf("Exception executing command '%s': %s", $command ? $command->getName() : 'unknown', $exception->getMessage())
         );
 
         $io->error(sprintf(
@@ -31,6 +32,6 @@ class ConsoleExceptionListener
             $exception->getMessage()
         ));
 
-        $event->setExitCode(1);
+        $event->setExitCode(Command::FAILURE);
     }
 }

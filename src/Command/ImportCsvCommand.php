@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use Exception;
 use Psr\Log\LoggerInterface;
 use App\Service\CsvParserService;
-use App\Service\DataValidatorService;
-use App\Repository\DestinataireRepository;
+use App\Service\DestinataireService;
 use App\Service\ImportReportService;
+use App\Service\DataValidatorService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -27,7 +26,7 @@ class ImportCsvCommand extends Command
 
     public function __construct(
         private LoggerInterface $logger,
-        private DestinataireRepository $destinataireRepository,
+        private DestinataireService $destinataireService,
         private DataValidatorService $dataValidatorService,
         private CsvParserService $csvParserService,
         private ImportReportService $importReportService
@@ -42,13 +41,14 @@ class ImportCsvCommand extends Command
 
     /**
      * Méthode principale de la commande app:csv-import, elle fonctionne comme tel:
-     *  - Elle récupère le chemin du fichier avec la méthode getArgument
-     *  - Elle vérifie l'existence du fichier
-     *  - Elle parse le fichier CSV via la méthode parseCsvRows
-     *  - Elle insert les données en base via le repository DestinataireRepository
-     *  - Elle affiche le rapport pour informer l'utilisateur du nombre de succès et d'erreurs
+     *  - Elle récupère le chemin relatif au fichier
+     *  - Elle parse le fichier avec la méthode parse du service App\Service\CsvParserService
+     *  - Si des données sont retournées, elle les sauvegarde en base de données via le service App\Service\DestinataireService
+     *  - Elle affiche le rapport avec le service App\Service\ImportReportService
      *
      * En cas de succès, la méthode retourne Command::SUCCESS. En cas d'erreur, Command::FAILURE est retourné.
+     * 
+     * Les exceptions sont gérées par App\EventListener\ConsoleExceptionListener
      *
      * @param \Symfony\Component\Console\Input\InputInterface $inputInterface
      * @param \Symfony\Component\Console\Output\OutputInterface $outputInterface
@@ -56,15 +56,15 @@ class ImportCsvCommand extends Command
      */
     protected function execute(InputInterface $inputInterface, OutputInterface $outputInterface): int
     {
+        $this->logger->info("START app:csv-import command");
+
         // get file path
         $filePath = $inputInterface->getArgument(self::ARG_FILE_PATH);
-
-        $this->logger->info("Start to parse: " . $filePath);
-
+        
         // parse csv
         $csvParseResult = $this->csvParserService->parse($filePath);
         if (!empty($csvParseResult->data)) {
-            $insertedRows = $this->destinataireRepository->insertBulk($csvParseResult->data);
+            $insertedRows = $this->destinataireService->persistDestinataires($csvParseResult->data);
         }
 
             // generate report
