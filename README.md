@@ -93,6 +93,6 @@ curl -X POST "http://127.0.0.1:8000/alerter" \
 Les erreurs suivantes sont gérées automatiquement par les Event Listeners :
 
 - **Clé d'API** manquante ou invalide → [src/EventListener/AuthentificationListener.php](src/EventListener/AuthentificationListener.php)
-- Paramètre `insee` n'est pas présent ou invalide → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
-- Paramètre `message` n'est pas présent → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
+- Paramètre `insee` manquant ou invalide → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
+- Paramètre `message` manquant → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
 - Erreur interne du serveur → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
