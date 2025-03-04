@@ -14,7 +14,7 @@ class SmsNotificationHandler
     ) {}
     
     /**
-     * Cette fonction est exécutée lors du traitement des messages en attente
+     * Cette méthode est exécutée lors du traitement des messages en attente
      * via la commande 'php bin/console messenger:consume async'.
      * 
      * Elle fait appel au service App\Service\SmsService.
