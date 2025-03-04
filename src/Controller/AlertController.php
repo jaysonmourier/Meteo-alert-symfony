@@ -32,8 +32,9 @@ class AlertController extends AbstractController
 
         return $this->json(
             [
-                'status' => 'done',
-                'sendTo' => count($numbers),
+                'status' => 'success',
+                'insee' => $insee,
+                'sent' => count($numbers),
             ],
             Response::HTTP_OK
         );
