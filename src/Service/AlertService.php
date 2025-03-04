@@ -21,7 +21,17 @@ class AlertService
         private LoggerInterface $logger
     ) {}
 
-    public function getInseeFromRequest(array $data): int
+    /**
+     * Permet de récuperer le code INSEE dans le tableau passé en paramètre.
+     * 
+     * Si le code INSEE n'est pas présent ou invalide, une exception est levée.
+     * 
+     * @param array $data
+     * @throws \App\Exceptions\MissingInseeException
+     * @throws \App\Exceptions\InvalidInseeException
+     * @return int
+     */
+    public function getInsee(array $data): int
     {
 
         if (!isset($data['insee'])) {
@@ -39,13 +49,16 @@ class AlertService
         return (int) $insee;
     }
 
-    public function getNumbersFromInsee(int $insee): array
-    {
-        $this->logger->debug("get numbers for insee => " . $insee);
-        return $this->destinataireRepository->getNumbersByInsee($insee);
-    }
-
-    public function getMessageFromRequest(array $data): string
+    /**
+     * Permet de récuperer le champ 'message' du tableau passé en paramètre.
+     * 
+     * Si la clé 'message' ne se trouve pas dans le tableau, une exception est levée.
+     * 
+     * @param array $data
+     * @throws \App\Exceptions\MissingMessageException
+     * @return string
+     */
+    public function getMessage(array $data): string
     {
         if (!isset($data['message'])) {
             $this->logger->error("Missing message in the request.");
@@ -55,7 +68,26 @@ class AlertService
         return $data['message'];
     }
 
-    public function dispatch(array $numbers, string $message): void
+    /**
+     * Permet de récuperer les numéros de téléphones associés au code INSEE passé en paramètre.
+     * 
+     * @param int $insee
+     * @return array
+     */
+    public function getNumbersFromInsee(int $insee): array
+    {
+        $this->logger->debug("get numbers for insee => " . $insee);
+        return $this->destinataireRepository->getNumbersByInsee($insee);
+    }
+
+    /**
+     * Permet de dispatcher des notifications SMS via 'Symfony\Component\Messenger\MessageBusInterface'. 
+     * 
+     * @param array $numbers
+     * @param string $message
+     * @return void
+     */
+    public function dispatchSmsNotification(array $numbers, string $message): void
     {
         foreach ($numbers as $number) {
             $this->messageBusInterface->dispatch(new SmsNotification($number, $message));

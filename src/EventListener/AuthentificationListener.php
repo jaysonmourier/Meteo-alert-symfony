@@ -7,6 +7,18 @@ namespace App\EventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
+/**
+ * Listener d'authentification basé sur une clé API.
+ *
+ * Ce listener intercepte toutes les requêtes HTTP de type POST au format JSON
+ * et vérifie la présence et la validité de la clé API dans l'en-tête `X-API-KEY`.
+ *
+ * - Si la clé API est absente, une réponse JSON avec un code 401 (Unauthorized) est retournée.
+ * - Si la clé API est invalide, une réponse JSON avec un code 401 est également retournée.
+ * - Si la clé API est correcte, la requête continue son traitement normalement.
+ *
+ * @package App\EventListener
+ */
 class AuthentificationListener
 {
     private string $apiKey;

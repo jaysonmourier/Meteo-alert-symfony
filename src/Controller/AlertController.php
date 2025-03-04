@@ -15,6 +15,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class AlertController extends AbstractController
 {
     #[Route('/alerter', methods:['POST'])]
+    /**
+     * Point d'entrée qui permet de propager un message en fonction du code INSEE.
+     * Le contrôleur extrait les données de la requête, récupère les numéros associés
+     * et dispatch les messages via la méthode 'dispatch' de 'App\Service\AlertService'.
+     * 
+     * Si une exception est levée, elle est gérée par 'App\EventListener\ExceptionListener'.
+     * 
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param \App\Service\AlertService $alertService
+     * @param \Psr\Log\LoggerInterface $logger
+     * @return JsonResponse
+     */
     public function alerter(
         Request $request, 
         AlertService $alertService,
@@ -25,10 +37,10 @@ class AlertController extends AbstractController
 
         $logger->info("received request", ["data" => $data]);
 
-        $insee = $alertService->getInseeFromRequest($data);
-        $message = $alertService->getMessageFromRequest($data);
+        $insee = $alertService->getInsee($data);
+        $message = $alertService->getMessage($data);
         $numbers = $alertService->getNumbersFromInsee($insee);
-        $alertService->dispatch($numbers, $message);
+        $alertService->dispatchSmsNotification($numbers, $message);
     
         return $this->json([
             "status" => "done",

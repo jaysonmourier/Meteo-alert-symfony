@@ -4,14 +4,29 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use Psr\Log\LoggerInterface;
 use App\Exceptions\InvalidInseeException;
 use App\Exceptions\MissingInseeException;
 use App\Exceptions\MissingMessageException;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
+/**
+ * Listener pour la gestion des exceptions dans l'application.
+ *
+ * Ce listener intercepte les exceptions levées pendant l'exécution des requêtes
+ * et renvoie une réponse JSON appropriée en fonction du type d'exception.
+ * Il permet ainsi de gérer les erreurs de manière centralisée et d'assurer
+ * des réponses cohérentes aux clients de l'API.
+ *
+ * - Les erreurs liées à des données manquantes (`MissingInseeException`, `MissingMessageException`)
+ *   renvoient une réponse HTTP 400 (Bad Request).
+ * - Les erreurs de format (`InvalidInseeException`) renvoient une réponse HTTP 422 (Unprocessable Entity).
+ * - Toutes les autres exceptions renvoient une réponse HTTP 500 (Internal Server Error).
+ *
+ * @package App\EventListener
+ */
 class ExceptionListener
 {
     public function __construct(

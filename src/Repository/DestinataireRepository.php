@@ -16,6 +16,15 @@ class DestinataireRepository
 
     public function __construct(private Connection $connection) {}
 
+    /**
+     * Cette méthode retourne les numéros de téléphone associé au code INSEE donné en paramètre.
+     * 
+     * En cas d'erreur, elle retourne une exception.
+     * 
+     * @param int $insee
+     * @throws \RuntimeException
+     * @return array
+     */
     public function getNumbersByInsee(int $insee): array {
         $sql = "SELECT DISTINCT telephone FROM " . self::TABLE_NAME . " WHERE insee = :insee";
 
