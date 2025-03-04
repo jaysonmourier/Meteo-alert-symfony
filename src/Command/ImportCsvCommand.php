@@ -47,7 +47,7 @@ class ImportCsvCommand extends Command
      *  - Elle affiche le rapport avec le service App\Service\ImportReportService
      *
      * En cas de succès, la méthode retourne Command::SUCCESS. En cas d'erreur, Command::FAILURE est retourné.
-     * 
+     *
      * Les exceptions sont gérées par App\EventListener\ConsoleExceptionListener
      *
      * @param \Symfony\Component\Console\Input\InputInterface $inputInterface
@@ -60,14 +60,14 @@ class ImportCsvCommand extends Command
 
         // get file path
         $filePath = $inputInterface->getArgument(self::ARG_FILE_PATH);
-        
+
         // parse csv
         $csvParseResult = $this->csvParserService->parse($filePath);
         if (!empty($csvParseResult->data)) {
             $insertedRows = $this->destinataireService->persistDestinataires($csvParseResult->data);
         }
 
-            // generate report
+        // generate report
         $this->importReportService->generate(
             $outputInterface,
             $csvParseResult->totalRows,

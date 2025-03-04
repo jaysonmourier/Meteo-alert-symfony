@@ -13,13 +13,12 @@ class DestinataireService
     public function __construct(
         private LoggerInterface $logger,
         private DestinataireRepository $destinataireRepository
-    )
-    {
+    ) {
     }
 
     /**
      * Permet de persister un ensemble de destinataires
-     * 
+     *
      * @param array $data
      * @return int
      */

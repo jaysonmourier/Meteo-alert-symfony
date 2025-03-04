@@ -67,6 +67,10 @@ php bin/console app:csv-import data/test.csv
 
 Le code source de l'implémentation de la commande se trouve dans le fichier [src/Command/ImportCsvCommand.php](src/Command/ImportCsvCommand.php)
 
+### 🚨 Gestion des erreurs
+
+Les erreurs sont gérées par [src/EventListener/ConsoleExceptionListener](src/EventListener/ConsoleExceptionListener.php)
+
 ## Route `/alerter`
 
 Cette route permet d'envoyer une **alerte météo** par SMS aux destinataires associés à un **code INSEE**.  
