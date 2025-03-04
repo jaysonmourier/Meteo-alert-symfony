@@ -60,6 +60,8 @@ class ImportCsvCommand extends Command
             // get file path
             $filePath = $inputInterface->getArgument(self::ARG_FILE_PATH);
 
+            $this->logger->info("Start to parse: " . $filePath);
+
             // parse csv
             $csvParseResult = $this->csvParserService->parse($filePath);
             if (!empty($csvParseResult->data)) {
@@ -78,7 +80,7 @@ class ImportCsvCommand extends Command
             return Command::SUCCESS;
         } catch (Exception $e) {
             $outputInterface->writeln('<error>' . $e->getMessage() . '</error>');
-            $this->logger->error("Exception: " . $e->getMessage());
+            $this->logger->error("(" . $filePath . ") Exception: " . $e->getMessage());
             return Command::FAILURE;
         }
     }
