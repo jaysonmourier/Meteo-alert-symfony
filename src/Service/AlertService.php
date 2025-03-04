@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use RuntimeException;
 use Psr\Log\LoggerInterface;
 use App\Message\SmsNotification;
+use App\Exceptions\InvalidInseeException;
+use App\Exceptions\MissingInseeException;
+use App\Exceptions\MissingMessageException;
 use App\Repository\DestinataireRepository;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class AlertService
@@ -25,14 +26,14 @@ class AlertService
 
         if (!isset($data['insee'])) {
             $this->logger->error("Missing INSEE code in the request.");
-            throw new RuntimeException("Missing INSEE code.");
+            throw new MissingInseeException("Missing INSEE code.");
         }
 
         $insee = $data['insee'];
 
         if (empty($insee) || !preg_match(self::INSEE_REGEX, $insee)) {
             $this->logger->error("Invalid INSEE code.", ['insee' => $insee]);
-            throw new RuntimeException("Invalid INSEE code.");
+            throw new InvalidInseeException("Invalid INSEE code.");
         }
 
         return (int) $insee;
@@ -48,7 +49,7 @@ class AlertService
     {
         if (!isset($data['message'])) {
             $this->logger->error("Missing message in the request.");
-            throw new RuntimeException("Missing message.");
+            throw new MissingMessageException("Missing message.");
         }
 
         return $data['message'];

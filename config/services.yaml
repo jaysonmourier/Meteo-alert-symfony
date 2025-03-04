@@ -29,3 +29,7 @@ services:
             $apiKey: '%env(X_API_KEY)%'
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 1 }
+
+    App\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
