@@ -9,55 +9,90 @@ Projet réalisé dans le cadre d'un test technique pour le poste de développeur
 - Base de données: Postegresql
 
 ## Installer, configurer et lancer le projet localement
-Pour commencer, il suffit de cloner le projet depuis ce dépôt et installer les dépendances:
+
+### 📌 Cloner et installer les dépendances
 ```{shell}
 git clone <URL_DU_REPO>
 cd nom-du-projet
 composer install
 ```
 
-Configurer les variables d'environnements (connexion à la base de données):
+### 📌 Configurer la base de données
 ```{shell}
-cp .env .env.local
-```
-```{shell}
-DATABASE_URL="postgresql://<USER>:<PASSWORD@127.0.0.1:5432/test_symfony?serverVersion=16&charset=utf8"
-MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
-X_API_KEY="choisir_une_clé_API_arbitraire"
-```
-Créer la base de données: 
-```{shell}
-php bin/console doctrine:database:create
+DATABASE_URL="postgresql://<USER>:<PASSWORD@127.0.0.1:5432/<DATABASE>?serverVersion=16&charset=utf8"
 ```
 
-Exécuter les migrations avec swouters/sql-migrations-bundle:
+### 📌 Base de données, migrations et Symfony Messenger
+
 ```{shell}
+# Création de la base de données
+php bin/console doctrine:database:create
+
+# Migrations
 php bin/console sql:migrations:status
 php bin/console sql:migrations:migrate
-```
 
-Configurer Symfony Messenger:
-```{shell}
+# Configuration de Symfony Messenger
 php bin/console messenger:setup-transports
 ```
 
-Et pour finir, lancer le serveur Symfony
+
+### 📌 Lancer le serveur en local
 
 ```{shell}
 symfony serve -d
 ```
-Pour lancer les tests unitaires, faites:
+
+### 📌 Les tests unitaires
+
 ```{shell}
 ./vendor/bin/phpunit
 ```
 
 ## La commande app:csv-import
 
-Cette commande permet de charger un fichier CSV en mémoire, le parcourir et en extraire les couples (code INSEE, numéro de téléphone) afin de les persister en base de données. 
+Cette commande permet de charger un **fichier CSV** en mémoire, le **parcourir** et en **extraire** les couples (code `INSEE`, `numéro de téléphone`) afin de les **persister** en base de données.
 
-Pour utiliser la commande, il suffit de faire appel à la console comme tel:
+| Paramètre  | Type   | Obligatoire | Description |
+|------------|--------|-------------|--------------|
+| `filePath`    | string | ✅ Oui       | Chemin relatif au fichier CSV |
+
+
+### 📌 Utilisation
+
+Par exemple, pour mon fichier [data/test.csv](data/test.csv), je lance la commande suivante:
 ```{shell}
 php bin/console app:csv-import data/test.csv
 ```
 
 Le code source de l'implémentation de la commande se trouve dans le fichier [src/Command/ImportCsvCommand.php](src/Command/ImportCsvCommand.php)
+
+## Route `/alerter`
+
+Cette route permet d'envoyer une **alerte météo** par SMS aux destinataires associés à un **code INSEE**.  
+Pour cela, effectuez une requête **POST** vers `/alerter` avec les paramètres suivants :
+
+| Paramètre  | Type   | Obligatoire | Description |
+|------------|--------|-------------|--------------|
+| `insee`    | string | ✅ Oui       | Code INSEE permettant de récupérer les numéros de téléphone associés |
+| `message`  | string | ✅ Oui       | Message d'alerte météo à envoyer aux destinataires |
+
+### 🔒 Authentification API
+L'accès à cette route est **protégé par une clé d'API**, qui doit être incluse dans le **header** de la requête (`X-API-KEY`).
+
+### 📌 Exemple de requête cURL
+```shell
+curl -X POST "http://127.0.0.1:8000/alerter" \
+     -H "Content-Type: application/json" \
+     -H "X-API-KEY: 638a58a1-343e-4aa7-89b4-2d133307587f" \
+     -d '{"insee": "75006", "message": "Alerte météo !"}'
+```
+
+### 🚨 Gestion des erreurs
+
+Les erreurs suivantes sont gérées automatiquement par les Event Listeners :
+
+- **Clé d'API** manquante ou invalide → [src/EventListener/AuthentificationListener.php](src/EventListener/AuthentificationListener.php)
+- Paramètre `insee` n'est pas présent ou invalide → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
+- Paramètre `message` n'est pas présent → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
+- Erreur interne du serveur → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
