@@ -90,9 +90,30 @@ curl -X POST "http://127.0.0.1:8000/alerter" \
 
 ### 🚨 Gestion des erreurs
 
-Les erreurs suivantes sont gérées automatiquement par les Event Listeners :
+Les erreurs suivantes sont gérées automatiquement par les Event Listeners:
 
 - **Clé d'API** manquante ou invalide → [src/EventListener/AuthentificationListener.php](src/EventListener/AuthentificationListener.php)
 - Paramètre `insee` manquant ou invalide → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
 - Paramètre `message` manquant → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
 - Erreur interne du serveur → [src/EventListener/ExceptionListener.php](src/EventListener/ExceptionListener.php)
+
+## 📨 Symfony Messenger - Traitement asynchrone des alertes
+
+Lorsque l'on appelle `/alerter`, les messages ne sont **pas immédiatement envoyés**.  
+Ils sont d'abord stockés dans un **transport asynchrone** (ex: Doctrine, Redis, RabbitMQ).  
+
+### 🚀 **Consommer les messages en attente**
+Pour traiter les messages et envoyer les alertes SMS, il faut exécuter:
+```shell
+php bin/console messenger:consume
+```
+
+### 🛠 Exemple de logs
+Après exécution, le fichier var/log/dev.log affichera des entrées similaires:
+```{shell}
+[2025-03-04T15:47:53.362265+00:00] app.INFO: Send SMS to +33621228334 with the following message: Alerte météo ! [] []
+[2025-03-04T15:47:53.455496+00:00] app.INFO: Send SMS to +33614425334 with the following message: Alerte météo ! [] []
+[2025-03-04T15:47:53.463858+00:00] app.INFO: Send SMS to +33621228334 with the following message: Alerte météo ! [] []
+[2025-03-04T15:47:53.471790+00:00] app.INFO: Send SMS to +33622223333 with the following message: Alerte météo ! [] []
+[2025-03-04T15:47:53.479649+00:00] app.INFO: Send SMS to +33624428334 with the following message: Alerte météo ! [] []
+```
