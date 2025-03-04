@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\AlertService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,9 +15,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class AlertController extends AbstractController
 {
     #[Route('/alerter', methods:['POST'])]
-    public function alerter(Request $request, AlertService $alertService): JsonResponse 
+    public function alerter(
+        Request $request, 
+        AlertService $alertService,
+        LoggerInterface $logger
+        ): JsonResponse 
     {
         $data = $request->toArray();
+
+        $logger->info("received request", ["data" => $data]);
+
         $insee = $alertService->getInseeFromRequest($data);
         $message = $alertService->getMessageFromRequest($data);
         $numbers = $alertService->getNumbersFromInsee($insee);
