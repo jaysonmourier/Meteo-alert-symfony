@@ -21,9 +21,11 @@ class AlertController extends AbstractController
         AlertService $alertService
     ): JsonResponse {
         try {
-            $insee = $alertService->getInseeFromRequest($request);
+            $data = $request->toArray();
+            
+            $insee = $alertService->getInseeFromRequest($data);
 
-            $message = $alertService->getMessageFromRequest($request);
+            $message = $alertService->getMessageFromRequest($data);
 
             $numbers = $alertService->getNumbersFromInsee($insee);
             

@@ -20,14 +20,8 @@ class AlertService
         private LoggerInterface $logger
     ) {}
 
-    private function extractData(Request $request): array
+    public function getInseeFromRequest(array $data): int
     {
-        return $request->toArray();
-    }
-
-    public function getInseeFromRequest(Request $request): int
-    {
-        $data = $this->extractData($request);
 
         if (!isset($data['insee'])) {
             $this->logger->error("Missing INSEE code in the request.");
@@ -50,10 +44,8 @@ class AlertService
         return $this->destinataireRepository->getNumbersByInsee($insee);
     }
 
-    public function getMessageFromRequest(Request $request): string
+    public function getMessageFromRequest(array $data): string
     {
-        $data = $this->extractData($request);
-
         if (!isset($data['message'])) {
             $this->logger->error("Missing message in the request.");
             throw new RuntimeException("Missing message.");
