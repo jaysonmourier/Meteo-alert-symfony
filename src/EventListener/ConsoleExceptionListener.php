@@ -23,7 +23,11 @@ class ConsoleExceptionListener
         $io = new SymfonyStyle($event->getInput(), new ConsoleOutput());
 
         $this->logger->error(
-            sprintf("Exception executing command '%s': %s", $command ? $command->getName() : 'unknown', $exception->getMessage())
+            sprintf(
+                "Exception executing command '%s': %s",
+                $command ? $command->getName() : 'unknown',
+                $exception->getMessage()
+            )
         );
 
         $io->error(sprintf(
