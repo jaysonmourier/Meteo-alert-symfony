@@ -105,15 +105,26 @@ Ils sont d'abord stockés dans un **transport asynchrone** (ex: Doctrine, Redis,
 ### 🚀 **Consommer les messages en attente**
 Pour traiter les messages et envoyer les alertes SMS, il faut exécuter:
 ```shell
-php bin/console messenger:consume
+php bin/console messenger:consume async -vv
 ```
 
 ### 🛠 Exemple de logs
-Après exécution, le fichier var/log/dev.log affichera des entrées similaires:
+Après exécution, la console affiche la sortie suivante:
 ```{shell}
-[2025-03-04T15:47:53.362265+00:00] app.INFO: Send SMS to +33621228334 with the following message: Alerte météo ! [] []
-[2025-03-04T15:47:53.455496+00:00] app.INFO: Send SMS to +33614425334 with the following message: Alerte météo ! [] []
-[2025-03-04T15:47:53.463858+00:00] app.INFO: Send SMS to +33621228334 with the following message: Alerte météo ! [] []
-[2025-03-04T15:47:53.471790+00:00] app.INFO: Send SMS to +33622223333 with the following message: Alerte météo ! [] []
-[2025-03-04T15:47:53.479649+00:00] app.INFO: Send SMS to +33624428334 with the following message: Alerte météo ! [] []
+17:08:26 INFO      [messenger] Received message App\Message\SmsNotification ["class" => "App\Message\SmsNotification"]
+17:08:26 INFO      [app] Send SMS to +33614425334 with the following message: Alerte météo !
+17:08:26 INFO      [messenger] Message App\Message\SmsNotification handled by App\MessageHandler\SmsNotificationHandler::__invoke ["class" => "App\Message\SmsNotification","handler" => "App\MessageHandler\SmsNotificationHandler::__invoke"]
+17:08:26 INFO      [messenger] App\Message\SmsNotification was handled successfully (acknowledging to transport). ["class" => "App\Message\SmsNotification"]
+17:08:26 INFO      [messenger] Received message App\Message\SmsNotification ["class" => "App\Message\SmsNotification"]
+17:08:26 INFO      [app] Send SMS to +33621228334 with the following message: Alerte météo !
+17:08:26 INFO      [messenger] Message App\Message\SmsNotification handled by App\MessageHandler\SmsNotificationHandler::__invoke ["class" => "App\Message\SmsNotification","handler" => "App\MessageHandler\SmsNotificationHandler::__invoke"]
+17:08:26 INFO      [messenger] App\Message\SmsNotification was handled successfully (acknowledging to transport). ["class" => "App\Message\SmsNotification"]
+17:08:26 INFO      [messenger] Received message App\Message\SmsNotification ["class" => "App\Message\SmsNotification"]
+17:08:26 INFO      [app] Send SMS to +33622223333 with the following message: Alerte météo !
+17:08:26 INFO      [messenger] Message App\Message\SmsNotification handled by App\MessageHandler\SmsNotificationHandler::__invoke ["class" => "App\Message\SmsNotification","handler" => "App\MessageHandler\SmsNotificationHandler::__invoke"]
+17:08:26 INFO      [messenger] App\Message\SmsNotification was handled successfully (acknowledging to transport). ["class" => "App\Message\SmsNotification"]
+17:08:26 INFO      [messenger] Received message App\Message\SmsNotification ["class" => "App\Message\SmsNotification"]
+17:08:26 INFO      [app] Send SMS to +33624428334 with the following message: Alerte météo !
+17:08:26 INFO      [messenger] Message App\Message\SmsNotification handled by App\MessageHandler\SmsNotificationHandler::__invoke ["class" => "App\Message\SmsNotification","handler" => "App\MessageHandler\SmsNotificationHandler::__invoke"]
+17:08:26 INFO      [messenger] App\Message\SmsNotification was handled successfully (acknowledging to transport). ["class" => "App\Message\SmsNotification"]
 ```
