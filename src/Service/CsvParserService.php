@@ -6,6 +6,8 @@ namespace App\Service;
 
 use RuntimeException;
 use App\Dto\CsvParseResult;
+use App\Exceptions\FileNotFoundException;
+use App\Exceptions\FileOpenException;
 use Psr\Log\LoggerInterface;
 
 class CsvParserService
@@ -16,16 +18,25 @@ class CsvParserService
     ) {
     }
 
+    /**
+     * Permet d'ouvrir et parcourir un fichier CSV afin d'y extraitre les couples valides (INSEE, telephone).
+     * Un couple est valide quand le code INSEE et le numéro de téléphone passe la validation du service App\Service\DataValidatorService
+     *
+     * @param string $filePath
+     * @throws \App\Exceptions\FileNotFoundException
+     * @throws \App\Exceptions\FileOpenException
+     * @return CsvParseResult
+     */
     public function parse(string $filePath): CsvParseResult
     {
-        if (!file_exists($filePath) || !is_readable($filePath)) {
-            throw new RuntimeException("Impossible d'ouvrir le fichier : $filePath");
+        if (!file_exists(filename: $filePath) || !is_readable($filePath)) {
+            throw new FileNotFoundException("Impossible d'ouvrir le fichier : $filePath");
         }
 
         $handle = fopen($filePath, 'r');
 
         if ($handle === false) {
-            throw new RuntimeException("Erreur lors de l'ouverture du fichier : $filePath");
+            throw new FileOpenException("Erreur lors de l'ouverture du fichier : $filePath");
         }
 
         $totalRows = 0;

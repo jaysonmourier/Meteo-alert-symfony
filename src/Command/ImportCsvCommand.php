@@ -56,32 +56,26 @@ class ImportCsvCommand extends Command
      */
     protected function execute(InputInterface $inputInterface, OutputInterface $outputInterface): int
     {
-        try {
-            // get file path
-            $filePath = $inputInterface->getArgument(self::ARG_FILE_PATH);
+        // get file path
+        $filePath = $inputInterface->getArgument(self::ARG_FILE_PATH);
 
-            $this->logger->info("Start to parse: " . $filePath);
+        $this->logger->info("Start to parse: " . $filePath);
 
-            // parse csv
-            $csvParseResult = $this->csvParserService->parse($filePath);
-            if (!empty($csvParseResult->data)) {
-                $insertedRows = $this->destinataireRepository->insertBulk($csvParseResult->data);
-            }
+        // parse csv
+        $csvParseResult = $this->csvParserService->parse($filePath);
+        if (!empty($csvParseResult->data)) {
+            $insertedRows = $this->destinataireRepository->insertBulk($csvParseResult->data);
+        }
 
             // generate report
-            $this->importReportService->generate(
-                $outputInterface,
-                $csvParseResult->totalRows,
-                $csvParseResult->totalValidRows,
-                $insertedRows,
-                $csvParseResult->totalErrorRows,
-            );
+        $this->importReportService->generate(
+            $outputInterface,
+            $csvParseResult->totalRows,
+            $csvParseResult->totalValidRows,
+            $insertedRows,
+            $csvParseResult->totalErrorRows,
+        );
 
-            return Command::SUCCESS;
-        } catch (Exception $e) {
-            $outputInterface->writeln('<error>' . $e->getMessage() . '</error>');
-            $this->logger->error("(" . $filePath . ") Exception: " . $e->getMessage());
-            return Command::FAILURE;
-        }
+        return Command::SUCCESS;
     }
 }

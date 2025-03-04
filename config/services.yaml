@@ -33,3 +33,7 @@ services:
     App\EventListener\ExceptionListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
+
+    App\EventListener\ConsoleExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: console.error }
