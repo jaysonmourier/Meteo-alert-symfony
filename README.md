@@ -57,7 +57,7 @@ Cette commande permet de charger un fichier CSV en mémoire, le parcourir et en 
 
 Pour utiliser la commande, il suffit de faire appel à la console comme tel:
 ```{shell}
-php bin/console app:csv-import data/test.csb
+php bin/console app:csv-import data/test.csv
 ```
 
 Le code source de l'implémentation de la commande se trouve dans le fichier [src/Command/ImportCsvCommand.php](src/Command/ImportCsvCommand.php)
