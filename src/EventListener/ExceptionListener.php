@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
-use JsonException;
 use Psr\Log\LoggerInterface;
 use App\Exceptions\InvalidInseeException;
 use App\Exceptions\MissingInseeException;
@@ -44,8 +43,6 @@ class ExceptionListener
 
         $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
         $message = 'An error occured';
-
-        $this->logger->error($exception->getMessage());
 
         if (
             $exception instanceof MissingInseeException ||
