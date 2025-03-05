@@ -29,8 +29,7 @@ DATABASE_URL="postgresql://<USER>:<PASSWORD@127.0.0.1:5432/<DATABASE>?serverVers
 php bin/console doctrine:database:create
 
 # Migrations
-php bin/console sql:migrations:status
-php bin/console sql:migrations:migrate
+php bin/console sql-migrations:execute
 
 # Configuration de Symfony Messenger
 php bin/console messenger:setup-transports
