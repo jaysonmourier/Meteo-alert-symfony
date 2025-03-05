@@ -5,7 +5,7 @@ Projet réalisé dans le cadre d'un test technique pour le poste de développeur
 ## Contraintes techniques
 - Langage et version: PHP 8.4
 - Framework: Symfony 6.4
-- Persistance: [Doelia/sql-migrations-bundle](https://github.com/Doelia/sql-migrations-bundle)
+- Persistance: Doctrine DBAL / [Doelia/sql-migrations-bundle](https://github.com/Doelia/sql-migrations-bundle)
 - Base de données: Postegresql
 
 ## Installer, configurer et lancer le projet localement
