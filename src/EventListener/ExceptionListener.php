@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use JsonException;
 use Psr\Log\LoggerInterface;
 use App\Exceptions\InvalidInseeException;
 use App\Exceptions\MissingInseeException;
@@ -11,6 +12,7 @@ use App\Exceptions\MissingMessageException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Listener pour la gestion des exceptions dans l'application.
@@ -43,6 +45,8 @@ class ExceptionListener
         $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
         $message = 'An error occured';
 
+        $this->logger->error($exception->getMessage());
+
         if (
             $exception instanceof MissingInseeException ||
             $exception instanceof MissingMessageException
@@ -52,9 +56,12 @@ class ExceptionListener
         } elseif ($exception instanceof InvalidInseeException) {
             $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
             $message = $exception->getMessage();
+        } elseif ($exception instanceof HttpException) {
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            $message = $exception->getMessage();
         }
 
-        $response = new JsonResponse(['error' => $message], $statusCode);
+        $response = new JsonResponse(['error' => $message, 'statusCode' => $statusCode], $statusCode);
         $event->setResponse($response);
     }
 }
