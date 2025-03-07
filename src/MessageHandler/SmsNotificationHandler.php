@@ -2,15 +2,15 @@
 
 namespace App\MessageHandler;
 
-use App\Message\SmsNotification;
-use App\Service\SmsService;
+use App\Message\Message;
+use App\Service\NotificationServiceInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
 class SmsNotificationHandler
 {
     public function __construct(
-        private SmsService $smsService
+        private NotificationServiceInterface $notificationServiceInterface
     ) {
     }
 
@@ -20,11 +20,11 @@ class SmsNotificationHandler
      *
      * Elle fait appel au service App\Service\SmsService.
      *
-     * @param \App\Message\SmsNotification $smsNotification
+     * @param \App\Message\Message $smsNotification
      * @return void
      */
-    public function __invoke(SmsNotification $smsNotification)
+    public function __invoke(Message $message)
     {
-        $this->smsService->send($smsNotification->getTo(), $smsNotification->getContent());
+        $this->notificationServiceInterface->send($message->getTo(), $message->getContent());
     }
 }

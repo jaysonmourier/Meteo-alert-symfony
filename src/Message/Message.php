@@ -5,7 +5,7 @@ namespace App\Message;
 /**
  * Représente une notification par SMS
  */
-class SmsNotification
+class Message
 {
     public function __construct(
         private string $to,

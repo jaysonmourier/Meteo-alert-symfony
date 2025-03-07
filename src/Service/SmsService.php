@@ -6,7 +6,7 @@ namespace App\Service;
 
 use Psr\Log\LoggerInterface;
 
-class SmsService
+class SmsService implements NotificationServiceInterface
 {
     public function __construct(private LoggerInterface $logger)
     {
@@ -22,7 +22,7 @@ class SmsService
      * @param string $message
      * @return void
      */
-    public function send(string $to, string $message)
+    public function send(string $to, string $message): void
     {
         $this->logger->info("Send SMS to " . $to . " with the following message: " . $message);
     }
