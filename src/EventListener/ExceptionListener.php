@@ -41,21 +41,24 @@ class ExceptionListener
 
         $this->logger->error('Error!', ['exception' => $exception]);
 
-        $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
-        $message = 'An error occured';
-
-        if (
-            $exception instanceof MissingInseeException ||
-            $exception instanceof MissingMessageException
-        ) {
+        switch (true) {
+            case $exception instanceof MissingInseeException:
+            case $exception instanceof MissingMessageException:
                 $statusCode = Response::HTTP_BAD_REQUEST;
                 $message = $exception->getMessage();
-        } elseif ($exception instanceof InvalidInseeException) {
-            $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
-            $message = $exception->getMessage();
-        } elseif ($exception instanceof HttpException) {
-            $statusCode = Response::HTTP_BAD_REQUEST;
-            $message = $exception->getMessage();
+                break;
+            case $exception instanceof InvalidInseeException:
+                $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
+                $message = $exception->getMessage();
+                break;
+            case $exception instanceof HttpException:
+                $statusCode = $exception->getStatusCode();
+                $message = $exception->getMessage();
+                break;
+            default:
+                $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+                $message = 'An error occured';
+                break;
         }
 
         $response = new JsonResponse(['error' => $message, 'statusCode' => $statusCode], $statusCode);
