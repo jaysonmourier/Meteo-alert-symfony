@@ -23,7 +23,7 @@ class DestinataireRepository
      *
      * En cas d'erreur, elle retourne une exception.
      *
-     * @param int $insee
+     * @param string $insee
      * @throws \RuntimeException
      * @return array
      */
