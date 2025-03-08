@@ -72,10 +72,10 @@ class AlertService
     /**
      * Permet de récuperer les numéros de téléphones associés au code INSEE passé en paramètre.
      *
-     * @param int $insee
+     * @param string $insee
      * @return array
      */
-    public function getNumbersFromInsee(int $insee): array
+    public function getNumbersFromInsee(string $insee): array
     {
         $this->logger->debug("get numbers for insee => " . $insee);
         return $this->destinataireRepository->getNumbersByInsee($insee);

@@ -27,7 +27,7 @@ class DestinataireRepository
      * @throws \RuntimeException
      * @return array
      */
-    public function getNumbersByInsee(int $insee): array
+    public function getNumbersByInsee(string $insee): array
     {
         $sql = "SELECT DISTINCT telephone FROM " . self::TABLE_NAME . " WHERE insee = :insee";
 
