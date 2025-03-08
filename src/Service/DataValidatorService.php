@@ -6,7 +6,7 @@ namespace App\Service;
 
 class DataValidatorService
 {
-    private const INSEE_REGEX_PATTERN = '/^\d{5}$/';
+    private const INSEE_REGEX_PATTERN = '/^(2[A-B]|[0-9]{2})[0-9]{3}$/';
     private const PHONENUMBER_REGEX_PATTERN = '/^\+?\d{10,15}$/';
 
     /**
