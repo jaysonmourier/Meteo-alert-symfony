@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Message\Message;
 use Psr\Log\LoggerInterface;
-use App\Message\SmsNotification;
 use App\Exceptions\InvalidInseeException;
 use App\Exceptions\MissingInseeException;
 use App\Exceptions\MissingMessageException;
@@ -91,7 +91,7 @@ class AlertService
     public function dispatchSmsNotification(array $numbers, string $message): void
     {
         foreach ($numbers as $number) {
-            $this->messageBusInterface->dispatch(new SmsNotification($number, $message));
+            $this->messageBusInterface->dispatch(new Message($number, $message));
         }
     }
 }
