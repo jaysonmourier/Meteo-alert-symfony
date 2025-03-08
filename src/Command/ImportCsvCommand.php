@@ -8,7 +8,6 @@ use Psr\Log\LoggerInterface;
 use App\Service\CsvParserService;
 use App\Service\DestinataireService;
 use App\Service\ImportReportService;
-use App\Service\DataValidatorService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -27,7 +26,6 @@ class ImportCsvCommand extends Command
     public function __construct(
         private LoggerInterface $logger,
         private DestinataireService $destinataireService,
-        private DataValidatorService $dataValidatorService,
         private CsvParserService $csvParserService,
         private ImportReportService $importReportService
     ) {

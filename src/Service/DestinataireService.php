@@ -6,7 +6,6 @@ namespace App\Service;
 
 use App\Repository\DestinataireRepository;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 
 class DestinataireService
 {

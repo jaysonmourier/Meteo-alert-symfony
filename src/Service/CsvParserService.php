@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use RuntimeException;
 use App\Dto\CsvParseResult;
 use App\Exceptions\FileNotFoundException;
 use App\Exceptions\FileOpenException;
