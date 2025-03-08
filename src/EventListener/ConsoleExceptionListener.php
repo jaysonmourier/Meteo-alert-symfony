@@ -20,7 +20,7 @@ class ConsoleExceptionListener
     {
         $exception = $event->getError();
         $command = $event->getCommand();
-        $io = new SymfonyStyle($event->getInput(), new ConsoleOutput());
+        $io = new SymfonyStyle($event->getInput(), $event->getOutput());
 
         $this->logger->error(
             sprintf(
