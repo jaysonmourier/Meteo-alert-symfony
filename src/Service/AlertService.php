@@ -32,7 +32,7 @@ class AlertService
      * @throws \App\Exceptions\InvalidInseeException
      * @return int
      */
-    public function getInsee(array $data): int
+    public function getInsee(array $data): string
     {
 
         if (!isset($data['insee'])) {
@@ -40,14 +40,14 @@ class AlertService
             throw new MissingInseeException("Missing INSEE code.");
         }
 
-        $insee = $data['insee'];
+        $insee = (string) $data['insee'];
 
         if (empty($insee) || !$this->dataValidatorService->isValidInseeCode($insee)) {
             $this->logger->error("Invalid INSEE code.", ['insee' => $insee]);
             throw new InvalidInseeException("Invalid INSEE code.");
         }
 
-        return (int) $insee;
+        return $insee;
     }
 
     /**
