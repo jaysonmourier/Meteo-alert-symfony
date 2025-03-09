@@ -19,7 +19,7 @@ composer install
 
 ### 📌 Configurer la base de données
 ```{shell}
-DATABASE_URL="postgresql://<USER>:<PASSWORD@127.0.0.1:5432/<DATABASE>?serverVersion=16&charset=utf8"
+DATABASE_URL="postgresql://<USER>:<PASSWORD>@{HOST}:{PORT}/<DATABASE>?serverVersion=16&charset=utf8"
 ```
 
 ### 📌 Base de données, migrations et Symfony Messenger
@@ -130,4 +130,49 @@ Après exécution, la console affiche la sortie suivante:
 17:08:26 INFO      [app] Send SMS to +33624428334 with the following message: Alerte météo !
 17:08:26 INFO      [messenger] Message App\Message\SmsNotification handled by App\MessageHandler\SmsNotificationHandler::__invoke ["class" => "App\Message\SmsNotification","handler" => "App\MessageHandler\SmsNotificationHandler::__invoke"]
 17:08:26 INFO      [messenger] App\Message\SmsNotification was handled successfully (acknowledging to transport). ["class" => "App\Message\SmsNotification"]
+```
+
+## 🚀 Optimisation
+
+Pour optimiser l'insertion en base de données, j'ai mis en place une insertion par chunk. L'idée est de découper les données à insérer en `n` morceaux de taille `$chunkSize`. Par exemple, pour insérer 100 données en base, ma méthode ne génère et n'exécute que 10 requêtes au lieu de 100 (`$chunkSize = 10`).
+
+### Implémentation
+
+```{php}
+public function insertBulk(array $data, int $chunkSize = 10): int
+{
+     if (empty($data)) {
+          return 0;
+     }
+
+     $chunks = array_chunk($data, $chunkSize);
+
+     $insertedRows = 0;
+
+     foreach ($chunks as $chunk) {
+          $placeholders = [];
+          $values = [];
+
+          foreach ($chunk as $row) {
+               $placeholders[] = "(?, ?)";
+               $values[] = $row[self::INSEE_KEY];
+               $values[] = $row[self::TELEPHONE_KEY];
+          }
+
+          $sql = "INSERT INTO " . self::TABLE_NAME . " (insee, telephone) VALUES "
+          . implode(", ", $placeholders) . " ON CONFLICT (insee, telephone) DO NOTHING;";
+
+          try {
+               $insertedRows += $this->connection->executeStatement($sql, $values);
+          } catch (Exception $e) {
+               throw new RuntimeException(
+               "Erreur lors de l'insertion des données dans la table `" . self::TABLE_NAME . "`",
+               0,
+               $e
+               );
+          }
+     }
+
+     return $insertedRows;
+}
 ```
