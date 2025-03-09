@@ -30,10 +30,11 @@ class AlertService
      * @param array $data
      * @throws \App\Exceptions\MissingInseeException
      * @throws \App\Exceptions\InvalidInseeException
-     * @return int
+     * @return string
      */
     public function getInsee(array $data): string
     {
+        $this->logger->info("GET INSEE CODE FROM ARRAY");
 
         if (!isset($data['insee'])) {
             $this->logger->error("Missing INSEE code in the request.");
@@ -61,6 +62,8 @@ class AlertService
      */
     public function getMessage(array $data): string
     {
+        $this->logger->info("GET MESSAGE FROM ARRAY");
+
         if (!isset($data['message'])) {
             $this->logger->error("Missing message in the request.");
             throw new MissingMessageException("Missing message.");
@@ -77,7 +80,7 @@ class AlertService
      */
     public function getNumbersFromInsee(string $insee): array
     {
-        $this->logger->debug("get numbers for insee => " . $insee);
+        $this->logger->info("GET PHONE NUMBERS FROM INSEE CODE => " . $insee);
         return $this->destinataireRepository->getNumbersByInsee($insee);
     }
 
@@ -90,6 +93,7 @@ class AlertService
      */
     public function dispatchSmsNotification(array $numbers, string $message): void
     {
+        $this->logger->info("DISPATCH MESSAGE TO NUMBERS");
         foreach ($numbers as $number) {
             $this->messageBusInterface->dispatch(new Message($number, $message));
         }

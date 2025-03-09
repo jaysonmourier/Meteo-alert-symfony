@@ -54,7 +54,7 @@ class ImportCsvCommand extends Command
      */
     protected function execute(InputInterface $inputInterface, OutputInterface $outputInterface): int
     {
-        $this->logger->info("START app:csv-import command");
+        $this->logger->info("START COMMAND => app:csv-import");
 
         // get file path
         $filePath = $inputInterface->getArgument(self::ARG_FILE_PATH);

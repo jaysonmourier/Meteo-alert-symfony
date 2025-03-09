@@ -30,6 +30,8 @@ class AlertController extends AbstractController
 
         $alertService->dispatchSmsNotification($numbers, $message);
 
+        $logger->info("Return JSON Response");
+
         return $this->json(
             [
                 'status' => 'success',
