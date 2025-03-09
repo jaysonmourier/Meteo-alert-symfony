@@ -7,6 +7,7 @@ namespace App\Repository;
 use Exception;
 use RuntimeException;
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 
 class DestinataireRepository
 {
@@ -14,7 +15,7 @@ class DestinataireRepository
     private const INSEE_KEY = 'insee';
     private const TELEPHONE_KEY = 'telephone';
 
-    public function __construct(private Connection $connection)
+    public function __construct(private Connection $connection, private LoggerInterface $logger)
     {
     }
 
@@ -70,40 +71,48 @@ class DestinataireRepository
      * @throws \RuntimeException
      * @return int
      */
-    public function insertBulk(array $data, int $chunkSize = 10): int
+    public function insertBulk(array $data, int $chunkSize = 25): int
     {
         if (empty($data)) {
             return 0;
         }
 
-        $chunks = array_chunk($data, $chunkSize);
-
+        $this->logger->info("BEGIN TRANSACTION");
+        $this->connection->beginTransaction(); 
         $insertedRows = 0;
 
-        foreach ($chunks as $chunk) {
-            $placeholders = [];
-            $values = [];
+        try {
+            foreach (array_chunk($data, $chunkSize) as $chunk) {
+                $placeholders = [];
+                $values = [];
 
-            foreach ($chunk as $row) {
-                $placeholders[] = "(?, ?)";
-                $values[] = $row[self::INSEE_KEY];
-                $values[] = $row[self::TELEPHONE_KEY];
-            }
+                foreach ($chunk as $row) {
+                    $placeholders[] = "(?, ?)";
+                    $values[] = $row[self::INSEE_KEY];
+                    $values[] = $row[self::TELEPHONE_KEY];
+                }
 
-            $sql = "INSERT INTO " . self::TABLE_NAME . " (insee, telephone) VALUES "
-            . implode(", ", $placeholders) . " ON CONFLICT (insee, telephone) DO NOTHING;";
+                $sql = "INSERT INTO " . self::TABLE_NAME . " (insee, telephone) VALUES "
+                . implode(", ", $placeholders) . " ON CONFLICT (insee, telephone) DO NOTHING;";
 
-            try {
                 $insertedRows += $this->connection->executeStatement($sql, $values);
-            } catch (Exception $e) {
-                throw new RuntimeException(
-                    "Erreur lors de l'insertion des données dans la table `" . self::TABLE_NAME . "`",
-                    0,
-                    $e
-                );
             }
+
+            $this->logger->info("TRANSACTION: COMMIT");
+            $this->connection->commit();
+        } catch (Exception $e) {
+            $this->logger->error("TRANSACTION: ROLLBACK");
+            $this->connection->rollBack();
+            throw new RuntimeException(
+                "Erreur lors de l'insertion des données dans la table `" . self::TABLE_NAME . "`",
+                0,
+                $e
+            );
         }
+
+        $this->logger->info("TRANSACTION: DONE");
 
         return $insertedRows;
     }
+
 }

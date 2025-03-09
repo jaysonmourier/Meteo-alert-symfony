@@ -134,44 +134,51 @@ Après exécution, la console affiche la sortie suivante:
 
 ## 🚀 Optimisation
 
-Pour optimiser l'insertion en base de données, j'ai mis en place une insertion par chunk. L'idée est de découper les données à insérer en `n` morceaux de taille `$chunkSize`. Par exemple, pour insérer 100 données en base, ma méthode ne génère et n'exécute que 10 requêtes au lieu de 100 (`$chunkSize = 10`).
+Pour optimiser l'insertion en base de données, j'ai mis en place une insertion par chunk. L'idée est de découper les données à insérer en `n` morceaux de taille `$chunkSize`. Par exemple, pour insérer 100 données en base, ma méthode ne génère et n'exécute que 4 requêtes au lieu de 100 (`$chunkSize = 25`).
 
 ### Implémentation
 
 ```{php}
-public function insertBulk(array $data, int $chunkSize = 10): int
+public function insertBulk(array $data, int $chunkSize = 25): int
 {
      if (empty($data)) {
           return 0;
      }
 
-     $chunks = array_chunk($data, $chunkSize);
-
+     $this->logger->info("BEGIN TRANSACTION");
+     $this->connection->beginTransaction(); 
      $insertedRows = 0;
 
-     foreach ($chunks as $chunk) {
-          $placeholders = [];
-          $values = [];
+     try {
+          foreach (array_chunk($data, $chunkSize) as $chunk) {
+               $placeholders = [];
+               $values = [];
 
-          foreach ($chunk as $row) {
+               foreach ($chunk as $row) {
                $placeholders[] = "(?, ?)";
                $values[] = $row[self::INSEE_KEY];
                $values[] = $row[self::TELEPHONE_KEY];
+               }
+
+               $sql = "INSERT INTO " . self::TABLE_NAME . " (insee, telephone) VALUES "
+               . implode(", ", $placeholders) . " ON CONFLICT (insee, telephone) DO NOTHING;";
+
+               $insertedRows += $this->connection->executeStatement($sql, $values);
           }
 
-          $sql = "INSERT INTO " . self::TABLE_NAME . " (insee, telephone) VALUES "
-          . implode(", ", $placeholders) . " ON CONFLICT (insee, telephone) DO NOTHING;";
-
-          try {
-               $insertedRows += $this->connection->executeStatement($sql, $values);
-          } catch (Exception $e) {
-               throw new RuntimeException(
+          $this->logger->info("TRANSACTION: COMMIT");
+          $this->connection->commit();
+     } catch (Exception $e) {
+          $this->logger->error("TRANSACTION: ROLLBACK");
+          $this->connection->rollBack();
+          throw new RuntimeException(
                "Erreur lors de l'insertion des données dans la table `" . self::TABLE_NAME . "`",
                0,
                $e
-               );
-          }
+          );
      }
+
+     $this->logger->info("TRANSACTION: DONE");
 
      return $insertedRows;
 }
